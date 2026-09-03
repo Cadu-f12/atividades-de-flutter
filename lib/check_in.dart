@@ -14,7 +14,13 @@ class CheckInPage extends StatefulWidget {
 class CheckInState extends State<CheckInPage> {
   int currentActivatedBtn = 1;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  
+  TextEditingController emailController = TextEditingController();
+  TextEditingController codeController = TextEditingController();
+  bool checkInConfirmed = false;
+  String? emailMessage = "";
+  String? codeMessage = "";
+
+
   String? _validatorEmailField(String? email) {
     if (email == null || email.isEmpty) {
       return "O email está vazio";
@@ -50,8 +56,26 @@ class CheckInState extends State<CheckInPage> {
   }
 
   void _submitButtonPressed() {
+    setState(() {
+      emailMessage = _validatorEmailField(emailController.text);
+      codeMessage = _validatorCode(codeController.text);
+    });
+    
+
     if (formKey.currentState!.validate()) {
-      print("nononon");
+      print(emailController.text);
+      print(codeController.text);
+      setState(() {
+        
+        checkInConfirmed = true;
+        
+      });
+
+      return;
+    }
+
+    if (checkInConfirmed) {
+      checkInConfirmed = false;
     }
   }
 
@@ -81,7 +105,7 @@ class CheckInState extends State<CheckInPage> {
               borderRadius: BorderRadius.vertical(top: Radius.circular(16))
             ),
             child: Container(
-              padding: EdgeInsets.only(top: 80, bottom: 0, left: 0, right: 0),
+              padding: EdgeInsets.only(top: 75, bottom: 0, left: 0, right: 0),
               alignment: Alignment.bottomLeft,
               child: Text(
                 "🚀 WorkShop Flutter",
@@ -100,7 +124,7 @@ class CheckInState extends State<CheckInPage> {
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(16))
             ),
             child: Container(
-              padding: EdgeInsets.only(top: 0, bottom: 150, left: 0, right: 0),
+              padding: EdgeInsets.only(top: 0, bottom: 0, left: 0, right: 0),
               child: Form(
                 key: formKey,
                 child: _formsOfChekIn()
@@ -116,9 +140,9 @@ class CheckInState extends State<CheckInPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _fieldsOfCheckIn("E-MAIL DE INSCRITO", "Digite seu email aqui", Icons.mail, _validatorEmailField),
+        _fieldsOfCheckIn("E-MAIL DE INSCRITO", "Digite seu email aqui", Icons.mail, _validatorEmailField, emailController),
         SizedBox(height: 20,),
-        _fieldsOfCheckIn("CÓDIGO DO TICKET", "Digite seu código aqui", Icons.search, _validatorCode),
+        _fieldsOfCheckIn("CÓDIGO DO TICKET", "Digite seu código aqui", Icons.search, _validatorCode, codeController),
         SizedBox(height: 20,),
         Align(
           alignment: AlignmentGeometry.centerLeft,
@@ -158,14 +182,83 @@ class CheckInState extends State<CheckInPage> {
               color: Colors.white,
             ),
           ),
-        )
+        ),
+        if (emailMessage != null || codeMessage != null) ...[
+          SizedBox(height: 20),
+
+          Column(
+            children: [
+              if (emailMessage != null)
+                Text(
+                  emailMessage!,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+              if (codeMessage != null)
+                Text(
+                  codeMessage!,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+            ],
+          ),
+        ],
+        if (checkInConfirmed) ...[
+          Container(
+            padding: EdgeInsets.only(left: 20, right: 20,top: 20, bottom: 5),
+            child: Row(
+              children: [
+                Icon(Icons.circle, color: Colors.green,),
+                SizedBox(width: 10,),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Check-in Confirmado!",
+                      style: TextStyle(
+                        color: Colors.green.shade700,
+                        fontWeight: FontWeight.bold
+                      ),
+                    ),
+                    Text(
+                      "Credencial de Estudante Liberada.",
+                      style: TextStyle(
+                        color: Colors.green.shade400,
+                        fontWeight: FontWeight.bold
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
+          )
+        ]
       ],
     );
   }
 
-  Widget _fieldsOfCheckIn(String title, String labelText, IconData icon, String? Function(String?) validatorFunction) {
+  Widget _fieldsOfCheckIn(String title, String labelText, IconData icon, String? Function(String?) validatorFunction, TextEditingController controllerFunction) {
     Color colorOfField = Colors.grey.shade600;
-    
+    OutlineInputBorder border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide(
+        color: colorOfField.withAlpha(90),
+        width: 1.0
+      )
+    );
+    OutlineInputBorder focusedBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide(
+        color: Colors.blue,
+        width: 2,
+      ),
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -178,16 +271,23 @@ class CheckInState extends State<CheckInPage> {
         ),
         SizedBox(height: 5,),
         TextFormField(
+          controller: controllerFunction,
           decoration: InputDecoration(
             labelText: labelText,
+            labelStyle: TextStyle(
+              color: colorOfField
+            ),
             suffixIcon: Icon(icon),
 
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: colorOfField.withAlpha(90),
-                width: 1.0
-              )
+            enabledBorder: border,
+            errorBorder: border,
+
+            focusedErrorBorder: focusedBorder,
+            focusedBorder: focusedBorder,
+
+            errorStyle: TextStyle(
+              height: 0,
+              fontSize: 0,
             )
           ),
           validator: validatorFunction,
