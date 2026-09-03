@@ -43,7 +43,7 @@ class CheckInState extends State<CheckInPage> {
     }
 
     if (code.length < 5) {
-      return "O código deve ser maior que 4 caracteres";
+      return "Código de ticket meuito curto (mínimo 5 caracteres).";
     }
 
     return null;
@@ -123,10 +123,14 @@ class CheckInState extends State<CheckInPage> {
         Align(
           alignment: AlignmentGeometry.centerLeft,
           child: Text(
-            "TIPO DE CREDENCIAL"
+            "TIPO DE CREDENCIAL",
+            style: TextStyle(
+              color: Colors.grey.shade600,
+              fontWeight: FontWeight.bold
+            ),
           ),
         ),
-        SizedBox(height: 10,),
+        SizedBox(height: 5,),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -139,7 +143,7 @@ class CheckInState extends State<CheckInPage> {
             )
           ],
         ),
-        SizedBox(height: 20,),
+        SizedBox(height: 15,),
         ElevatedButton(
           onPressed: _submitButtonPressed,
           style: ElevatedButton.styleFrom(
@@ -160,16 +164,31 @@ class CheckInState extends State<CheckInPage> {
   }
 
   Widget _fieldsOfCheckIn(String title, String labelText, IconData icon, String? Function(String?) validatorFunction) {
+    Color colorOfField = Colors.grey.shade600;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          title
+          title,
+          style: TextStyle(
+            color: colorOfField,
+            fontWeight: FontWeight.bold
+          ),
         ),
+        SizedBox(height: 5,),
         TextFormField(
           decoration: InputDecoration(
             labelText: labelText,
             suffixIcon: Icon(icon),
+
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(
+                color: colorOfField.withAlpha(90),
+                width: 1.0
+              )
+            )
           ),
           validator: validatorFunction,
         )
